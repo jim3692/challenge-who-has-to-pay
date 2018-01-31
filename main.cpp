@@ -7,37 +7,34 @@ using namespace std;
 
 const int StudentCount = 20;
 
-int A = 0x41;
+const char chars[] = "ABCDEFGHIJKLMNOPQRST";
 
 class Student
 {
     public:
-        Student *lentTo;
-        string Name;
-        Student(string name) : Name(name) { }
-        void LentTo(Student *_lentTo) { lentTo = _lentTo; cout << (*this).Name << "->" << ((*this).lentTo == this ? "'None'" : (*_lentTo).Name) << endl; }
+        Student *LentTo;
+        int Index;
+        Student(int i) : Index(i) { }
 };
 
 int main()
 {
     Student *Classroom[StudentCount];
 
-    // Initialize Students
-    for (int i = 0; i < StudentCount; i++)
+    // Initialize Students and define who lent to whom
+    for (int i = 0; i < StudentCount; i++)               
     {
-        char _str[1];
-        _str[0] = i + A;
-        Classroom[i] = new Student(_str);
-    }
-
-    // Define who lent to whom
-    for (int i = 0; i < StudentCount; i++)
-    {
+        Classroom[i] = new Student(i);
         int lend = (rand() % StudentCount);
-        (*Classroom[i]).LentTo(Classroom[lend]);
+        (*Classroom[i]).LentTo = Classroom[lend];
+        
+        cout << chars[i] << "->";
+        if (i == lend) { cout << "'None'"; }
+        else { cout << chars[lend]; }
+        cout << endl;
     }
 
-    cout << endl; // Divide outputs
+    cout << endl << "Calculating results..." << endl;
 
     // Calculate who owes to whom
     for (int i = 0; i < StudentCount; i++)
@@ -47,22 +44,27 @@ int main()
         while (true)
         {
             if (current == nullptr) break;;
-            if ((*current).lentTo == nullptr) break;
-            if ((*current).lentTo == current) { (*current).lentTo = nullptr; break; }
+            if ((*current).LentTo == nullptr) break;
+            if ((*current).LentTo == current) { (*current).LentTo = nullptr; break; }
 
-            current = (*current).lentTo;
+            current = (*current).LentTo;
         }
 
-        (*Classroom[i]).lentTo = current;
+        (*Classroom[i]).LentTo = current;
     }
+    
+    cout << endl << "The results are..." << endl << endl;
 
     // Announce results
     for (int i = 0; i < StudentCount; i++)
     {
         Student *current = Classroom[i];
-        if ((*current).lentTo == nullptr) continue;
+        if ((*current).LentTo == nullptr) continue;
+        
+        int _owesTo = (*(*current).LentTo).Index;
+        int _lentTo = (*current).Index;
 
-        cout << (*(*current).lentTo).Name << " owes to " << (*current).Name << endl;
+        cout << chars[_owesTo] << " owes to " << chars[_lentTo] << endl;
     }
 
     return 0;
