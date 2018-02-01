@@ -12,25 +12,24 @@ const char chars[] = "ABCDEFGHIJKLMNOPQRST";
 class Student
 {
     public:
-        Student *LentTo;
-        int Index;
-        Student(int i) : Index(i) { }
+        int LentTo = -1;
+        int Index = -1;
+        Student(int i, int l) : Index(i), LentTo(l) { }
 };
 
 int main()
 {
     Student *Classroom[StudentCount];
 
-    // Initialize Students and define who lent to whom
-    for (int i = 0; i < StudentCount; i++)               
+    // Define who lent to whom
+    for (int i = 0; i < StudentCount; i++)
     {
-        Classroom[i] = new Student(i);
-        int lend = (rand() % StudentCount);
-        (*Classroom[i]).LentTo = Classroom[lend];
+        int l =  ((rand() % 3) != 0 ? (rand() % StudentCount) : -1);
+        Classroom[i] = new Student(i,l);
         
         cout << chars[i] << "->";
-        if (i == lend) { cout << "'None'"; }
-        else { cout << chars[lend]; }
+        if (l == -1) { cout << "'None'"; }
+        else { cout << chars[l]; }
         cout << endl;
     }
 
@@ -39,18 +38,21 @@ int main()
     // Calculate who owes to whom
     for (int i = 0; i < StudentCount; i++)
     {
-        Student *current = Classroom[i];
+        if (Classroom[i]->LentTo == -1) continue;
+
+        int c = i;
+        int l = Classroom[i]->LentTo;
 
         while (true)
         {
-            if (current == nullptr) break;;
-            if ((*current).LentTo == nullptr) break;
-            if ((*current).LentTo == current) { (*current).LentTo = nullptr; break; }
+            if (l == -1) break;
+            if (l == c) { Classroom[l]->LentTo = -1; break; }
 
-            current = (*current).LentTo;
+            c = l;
+            l = Classroom[l]->LentTo;
         }
 
-        (*Classroom[i]).LentTo = current;
+        Classroom[i]->LentTo = c;
     }
     
     cout << endl << "The results are..." << endl << endl;
@@ -59,9 +61,9 @@ int main()
     for (int i = 0; i < StudentCount; i++)
     {
         Student *current = Classroom[i];
-        if ((*current).LentTo == nullptr) continue;
+        if ((*current).LentTo == -1) continue;
         
-        int _owesTo = (*(*current).LentTo).Index;
+        int _owesTo = (*current).LentTo;
         int _lentTo = (*current).Index;
 
         cout << chars[_owesTo] << " owes to " << chars[_lentTo] << endl;
